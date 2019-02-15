@@ -1,4 +1,5 @@
 import json
+import time
 import datetime
 import logging
 import urllib.request
@@ -8,6 +9,8 @@ from bs4 import BeautifulSoup as Soup
 import paho.mqtt.client as mqtt
 
 from config import MQTT_BROKER, MQTT_PORT, MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS
+
+DELAY = 5 * 60  # 5 min
 
 MQTT_TOPIC = 'outside/isar/water/{}'
 
@@ -45,9 +48,6 @@ def connect():
     finally:
         if client:
             client.disconnect()
-
-def on_connect(client, userdata, flags, rc):
-    pass
 
 def _get_topic(k=None):
     return MQTT_TOPIC.format(k if k else 'all')
@@ -101,7 +101,9 @@ def lambda_handler(event, context):  # pylint: disable=unused-argument
     return None
 
 if __name__ == '__main__':
-    data = fetch_info()
-    print(data)
     with connect() as client:
-        send(client, data)
+        while True:
+            data = fetch_info()
+            print(data)
+            send(client, data)
+            time.sleep(DELAY)
