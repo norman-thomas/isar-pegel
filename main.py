@@ -39,7 +39,8 @@ logger.setLevel(logging.INFO)
 def connect():
     client = mqtt.Client(client_id=MQTT_CLIENT_ID)
     try:
-        client.username_pw_set(MQTT_USER, MQTT_PASS)
+        if MQTT_USER and MQTT_PASS:
+            client.username_pw_set(MQTT_USER, MQTT_PASS)
         client.connect(MQTT_BROKER, MQTT_PORT)
         client.loop_write()
         yield client
