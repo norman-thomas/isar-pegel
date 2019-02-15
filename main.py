@@ -77,7 +77,7 @@ def fetch_info():
 
 def load_page(url, selectors):
     content = urllib.request.urlopen(url).read()
-    soup = Soup(content)
+    soup = Soup(content, 'html.parser')
 
     datetime_str = soup.select(selectors[0])[0].text
     value = soup.select(selectors[1])[0].text
