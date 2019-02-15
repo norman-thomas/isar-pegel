@@ -8,9 +8,7 @@ from contextlib import contextmanager
 from bs4 import BeautifulSoup as Soup
 import paho.mqtt.client as mqtt
 
-from config import MQTT_BROKER, MQTT_PORT, MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS
-
-DELAY = 5 * 60  # 5 min
+from config import MQTT_BROKER, MQTT_PORT, MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS, INTERVAL
 
 MQTT_TOPIC = 'outside/isar/water/{}'
 
@@ -112,4 +110,4 @@ if __name__ == '__main__':
             LOGGER.info('data: %s', str(data))
             send(client, data)
             LOGGER.info('waiting %d mins...', DELAY // 60)
-            time.sleep(DELAY)
+            time.sleep(INTERVAL)
