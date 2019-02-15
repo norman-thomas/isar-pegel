@@ -32,8 +32,8 @@ TEMPERATURE_SELECTORS = (
     'table.tblsort tbody tr:nth-of-type(1) td:nth-of-type(2)'
 )
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+LOGGER = logging.getLogger('isar_pegel')
+LOGGER.setLevel(logging.INFO)
 
 @contextmanager
 def connect():
@@ -45,7 +45,7 @@ def connect():
         client.loop_write()
         yield client
     except Exception:
-        logger.exception()
+        LOGGER.exception()
     finally:
         if client:
             client.disconnect()
@@ -54,14 +54,18 @@ def _get_topic(k=None):
     return MQTT_TOPIC.format(k if k else 'all')
 
 def send(client, data):
+    LOGGER.info('Reporting data via MQTT...')
     for k, v in data.items():
         if k != "time" and v is not None:
             client.publish(_get_topic(k), payload=str(v), qos=1, retain=False)    
     client.publish(_get_topic(), payload=json.dumps(data), qos=1, retain=False)
 
 def fetch_info():
+    LOGGER.info('opening level page...')
     level = load_page(LEVEL_URL, LEVEL_SELECTORS)
+    LOGGER.info('opening flow page...')
     flow = load_page(FLOW_URL, FLOW_SELECTORS)
+    LOGGER.info('opening temperature page...')
     temperature = load_page(TEMPERATURE_URL, TEMPERATURE_SELECTORS)
 
     return {
@@ -105,6 +109,7 @@ if __name__ == '__main__':
     with connect() as client:
         while True:
             data = fetch_info()
-            print(data)
+            LOGGER.info('data: %s', str(data))
             send(client, data)
+            LOGGER.info('waiting %d mins...', DELAY // 60)
             time.sleep(DELAY)
