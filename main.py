@@ -109,5 +109,5 @@ if __name__ == '__main__':
             data = fetch_info()
             LOGGER.info('data: %s', str(data))
             send(client, data)
-            LOGGER.info('waiting %d mins...', DELAY // 60)
+            LOGGER.info('waiting %d mins...', INTERVAL // 60)
             time.sleep(INTERVAL)
