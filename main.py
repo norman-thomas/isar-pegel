@@ -35,13 +35,13 @@ LOGGER.setLevel(logging.INFO)
 
 @contextmanager
 def connect():
+    LOGGER.info('Connecting to MQTT broker')
     client = mqtt.Client(client_id=MQTT_CLIENT_ID)
     try:
         if MQTT_USER and MQTT_PASS:
             client.username_pw_set(MQTT_USER, MQTT_PASS)
-        LOGGER.info('connecting to MQTT broker...')
+        LOGGER.info('connecting...')
         client.connect(MQTT_BROKER, MQTT_PORT)
-        LOGGER.info('connected.')
         yield client
     except Exception:
         LOGGER.exception()
@@ -56,9 +56,10 @@ def send(client, data):
     LOGGER.info('Reporting data via MQTT...')
     for k, v in data.items():
         if k != "time" and v is not None:
+            LOGGER.info('Publishing: %s=%d', k, v)
             client.publish(_get_topic(k), payload=str(v), qos=1, retain=False)    
+    LOGGER.info('Publishing: %s', json.dumps(data))
     client.publish(_get_topic(), payload=json.dumps(data), qos=1, retain=False)
-    client.loop_write()
 
 def fetch_info():
     LOGGER.info('opening level page...')
@@ -112,4 +113,5 @@ if __name__ == '__main__':
             LOGGER.info('data: %s', str(data))
             send(client, data)
             LOGGER.info('waiting %d mins...', INTERVAL // 60)
-            time.sleep(INTERVAL)
+            client.loop(INTERVAL)
+
