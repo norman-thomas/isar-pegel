@@ -39,8 +39,9 @@ def connect():
     try:
         if MQTT_USER and MQTT_PASS:
             client.username_pw_set(MQTT_USER, MQTT_PASS)
+        LOGGER.info('connecting to MQTT broker...')
         client.connect(MQTT_BROKER, MQTT_PORT)
-        client.loop_write()
+        LOGGER.info('connected.')
         yield client
     except Exception:
         LOGGER.exception()
@@ -57,6 +58,7 @@ def send(client, data):
         if k != "time" and v is not None:
             client.publish(_get_topic(k), payload=str(v), qos=1, retain=False)    
     client.publish(_get_topic(), payload=json.dumps(data), qos=1, retain=False)
+    client.loop_write()
 
 def fetch_info():
     LOGGER.info('opening level page...')
